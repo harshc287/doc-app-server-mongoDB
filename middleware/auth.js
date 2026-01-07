@@ -17,4 +17,18 @@ const auth = (req, res, next) => {
   }
 }
 
-module.exports = { auth };
+const doctor =(req, res, next) =>{
+    if(req.user.role !== "Doctor") {
+        return res.status(403).json({msg:"Doctor access only"})
+    }
+    next()
+}
+
+const admin = (req, res, nexr) => {
+    if(req.user.role !== "Admin"){
+        return res.status(403).json({msg: "Admin access only"})
+    }
+    next()
+}
+
+module.exports = { auth, admin, doctor };
