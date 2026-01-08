@@ -1,4 +1,4 @@
-const Doctor = require("../model")
+const Doctor = require("../model/doctorModel")
 const User = require("../model/userModel")
 
 
@@ -12,10 +12,10 @@ exports.applyDoctor = async (req, res) => {
     }
 
     const existing = await Doctor.findOne({ createdBy: req.user.id });
-    if (existing) {
+    if (existing && existing.status === "Pending") {
       return res.status(400).json({
         success: false,
-        msg: "Doctor application already submitted",
+        msg: "Doctor application already pending",
       });
     }
 
@@ -38,3 +38,162 @@ exports.applyDoctor = async (req, res) => {
     });
   }
 };
+
+
+exports.getDoctorInfo = async (req, res) => {
+  try {
+
+    const doctor = await Doctor.findOne({
+      createdBy: req.user.id,
+
+    }).populate("createdBy", "name email contactNumber")
+
+    if(!doctor){
+      return res.status(404).json({success: false , msg: "Doctor Profile Not Found"})
+    }
+
+    res.status(200).json({success:true, doctor})
+    
+  } catch (error) {
+    console.error("Get Doctor Info Error:", error);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+}
+
+exports.updateDoctor = async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne({
+      createdBy: req.user.id,
+    })
+
+    if(!doctor){
+      return res.status(404).json({
+        success: false,
+        msg: "Doctor profile not found",
+      });
+    }
+
+    doctor.specialist = req.body.specialist ?? doctor.specialist;
+    doctor.fees = req.body.fees ?? doctor.fees
+    
+    await doctor.save()
+
+      res.status(200).json({
+      success: true,
+      msg: "Doctor profile updated successfully",
+      doctor,
+    });
+
+  } catch (error) {
+    console.error("Update Doctor Error:", error);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+}
+
+exports.docStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!["Accepted", "Rejected"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid status value",
+      });
+    }
+
+    const doctor = await Doctor.findById(req.params.doctorId);
+    console.log(req.params);
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        msg: "Doctor not found",
+      });
+    }
+
+
+    // update doctor status
+    doctor.status = status;
+    await doctor.save();
+
+    // 🔥 THIS PART you were asking about
+    if (status === "Accepted") {
+      await User.findByIdAndUpdate(doctor.createdBy, {
+        role: "Doctor",
+      });
+    }
+
+    if (status === "Rejected") {
+      await User.findByIdAndUpdate(doctor.createdBy, {
+        role: "User",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      msg: `Doctor application ${status}`,
+    });
+  } catch (error) {
+    console.error("Doctor Status Error:", error);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+};
+
+
+exports.deleteDoctor = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.DoctorID);
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        msg: "Doctor not found",
+      });
+    }
+
+    await Doctor.findByIdAndDelete(req.params.DoctorID);
+
+    await User.findByIdAndUpdate(doctor.createdBy, {
+      role: "User",
+    });
+
+    res.status(200).json({
+      success: true,
+      msg: "Doctor deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Doctor Error:", error);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+};
+
+exports.getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.find({status: "Accepted"}).populate(
+      "createdBy",
+      "name email"
+    )
+
+     res.status(200).json({
+      success: true,
+      doctors,
+    });
+    
+  } catch (error) {
+    console.error("Get All Doctors Error:", error);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+}

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const doctorController = require("../controllers/doctorController");
+const doctorController = require("../controller/doctorController");
 const { auth, doctor, admin } = require("../middleware/auth");
 
 // Apply for doctor
@@ -14,7 +14,7 @@ router.get("/getDoctorInfo", auth, doctor, doctorController.getDoctorInfo);
 router.patch("/updateDoctor", auth, doctor, doctorController.updateDoctor);
 
 // Admin: approve / reject doctor
-router.patch("/docStatus/:DoctorID", auth, admin, doctorController.docStatus);
+router.patch("/docStatus/:doctorId", auth, admin, doctorController.docStatus);
 
 // Admin: delete doctor
 router.delete("/deleteDoctor/:DoctorID", auth, admin, doctorController.deleteDoctor);

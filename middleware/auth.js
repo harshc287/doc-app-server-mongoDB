@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const User = require("../model/userModel")
 
 const auth = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1]
@@ -18,15 +19,15 @@ const auth = (req, res, next) => {
 }
 
 const doctor =(req, res, next) =>{
-    if(req.user.role !== "Doctor") {
+    if(req.user.role === "Doctor") {
         return res.status(403).json({msg:"Doctor access only"})
     }
     next()
 }
 
-const admin = (req, res, nexr) => {
+const admin = (req, res, next) => {
     if(req.user.role !== "Admin"){
-        return res.status(403).json({msg: "Admin access only"})
+        return res.status(403).json({msg: "Admin access only", success: false})
     }
     next()
 }

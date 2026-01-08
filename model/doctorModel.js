@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const doctorSchema = new  mongoose.Schema(
     {
-        Specialist:{
+        specialist:{
             type: String,
             required: true,
             trim: true
@@ -28,7 +28,7 @@ const doctorSchema = new  mongoose.Schema(
         },
         status:{
             type: String,
-            enum: ["Pending", "Accepted", "Reject"],
+            enum: ["Pending", "Accepted", "Rejected"],
             default: 'Pending'
         }
     },
@@ -37,4 +37,4 @@ const doctorSchema = new  mongoose.Schema(
     }
 )
 
-module.exports = mongoose.model('Doctor', UserSchema);
+module.exports = mongoose.model('Doctor', doctorSchema);
