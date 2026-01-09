@@ -19,7 +19,7 @@ const auth = (req, res, next) => {
 }
 
 const doctor =(req, res, next) =>{
-    if(req.user.role === "Doctor") {
+    if(req.user.role !== "Doctor") {
         return res.status(403).json({msg:"Doctor access only"})
     }
     next()

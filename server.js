@@ -13,6 +13,7 @@ app.use(cors())
 
 app.use("/api/user", require("./routes/userRoutes"))
 app.use("/api/doctor", require("./routes/doctorRoutes"));
+app.use("/api/appointment", require("./routes/appointmentsRoutes"));
 
 
 const PORT = process.env.PORT || 7005

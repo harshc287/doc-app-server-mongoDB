@@ -21,11 +21,11 @@ const doctorSchema = new  mongoose.Schema(
             ref:"User",
             
         },
-        userID:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref:"User",
+        // userID:{
+        //     type: mongoose.Schema.Types.ObjectId,
+        //     ref:"User",
             
-        },
+        // },
         status:{
             type: String,
             enum: ["Pending", "Accepted", "Rejected"],

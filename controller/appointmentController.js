@@ -6,6 +6,25 @@ exports.createAppointment = async (req , res) => {
     try {
         const { dateTime , doctorId} = req.body
 
+        if (!dateTime || !doctorId) {
+      return res.status(400).json({
+        success: false,
+        msg: "dateTime and doctorId are required",
+      });
+    }
+
+        const doctor = await User.findOne({
+      _id: doctorId,
+      role: "Doctor",
+    });
+
+    if (!doctor) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid doctor selected",
+      });
+    }
+
         const appointment = await Appointment.create({
             dateTime, 
             doctorId,
@@ -77,7 +96,7 @@ exports.updateAppointment = async (req, res) => {
         }
         
         appointment.dateTime = req.body.dateTime ?? appointment.dateTime;
-        appointment.doctorId = req.body.doctorId ?? appointment.doctorId;
+        appointment.doctorId = req.body.doctorId ?? appointment.dateTime;
         appointment.updatedBy = req.user.id;
 
         await appointment.save()
@@ -130,7 +149,7 @@ exports.getAppointmentsByUser = async (req, res) => {
             filter.createdBy = req.user.id
         }
 
-        if(req.user.role === "Doctor"){
+        else if(req.user.role === "Doctor"){
             filter.doctorId = req.user.id
         }
         else {
