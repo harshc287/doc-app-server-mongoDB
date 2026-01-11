@@ -94,8 +94,9 @@ const getUserInfo = async (req, res) => {
 
 const doctorList = async (req, res) => {
   try {
-    const doctors = await User.find({ role: "Doctor" }, { name: 1 });
-
+    const doctors = await Doctor.find({ status: "Accepted" })
+      .populate("createdBy", "name email");
+      
     res.status(200).json({
       success: true,
       doctors,
@@ -121,10 +122,10 @@ const profileImage = async (req, res) => {
       msg: "Profile image uploaded successfully",
     });
   } catch (error) {
-    console.error("Register Error", error);
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 const getAllUsers = async (req, res) => {
   try {
