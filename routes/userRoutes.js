@@ -10,6 +10,7 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/getUserInfo", auth, userController.getUserInfo);
 router.get("/doctorList", auth, userController.doctorList);
+router.patch("/updateProfile", auth, userController.updateUserProfile)
 router.post(
   "/upload-profile",
   auth,

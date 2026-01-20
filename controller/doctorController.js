@@ -121,7 +121,6 @@ exports.docStatus = async (req, res) => {
     doctor.status = status;
     await doctor.save();
 
-    // 🔥 THIS PART you were asking about
     if (status === "Accepted") {
       await User.findByIdAndUpdate(doctor.createdBy, {
         role: "Doctor",
@@ -179,10 +178,15 @@ exports.deleteDoctor = async (req, res) => {
 
 exports.getAllDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find({status: "Accepted"}).populate(
-      "createdBy",
-      "name email"
-    )
+
+    let query = {}
+    if(req.user.role === "Admin"){
+      query ={}
+    }else{
+      query = {status :"Accepted"}
+    }
+    const doctors = await Doctor.find(query)
+      .populate("createdBy", "name email contactNumber role");
 
      res.status(200).json({
       success: true,
@@ -197,3 +201,24 @@ exports.getAllDoctors = async (req, res) => {
     });
   }
 }
+
+// controller/doctorController.js
+exports.getApplicationStatus = async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne({ createdBy: req.user.id });
+
+    if (!doctor) {
+      return res.status(200).json({
+        exists: false,
+        msg: "No application found",
+      });
+    }
+
+    res.status(200).json({
+      exists: true,
+      status: doctor.status,
+    });
+  } catch (error) {
+    res.status(500).json({ msg: "Server error" });
+  }
+};

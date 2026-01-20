@@ -22,4 +22,10 @@ router.delete("/deleteDoctor/:DoctorID", auth, admin, doctorController.deleteDoc
 // Get all accepted doctors
 router.get("/getAllDoctors", auth, doctorController.getAllDoctors);
 
+router.get(
+  "/application-status",
+  auth,
+  doctorController.getApplicationStatus
+);
+
 module.exports = router;

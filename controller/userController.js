@@ -105,6 +105,7 @@ const doctorList = async (req, res) => {
     console.error("Register Error", error);
     res.status(500).json({ msg: "Server Error" });
   }
+  
 };
 
 const profileImage = async (req, res) => {
@@ -140,6 +141,40 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const updateUserProfile = async (req, res) => {
+  try {
+    const { name, contactNumber, address } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    user.name = name ?? user.name;
+    user.contactNumber = contactNumber ?? user.contactNumber;
+    user.address = address ?? user.address;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      msg: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+};
+
+
 module.exports = {
   register,
   login,
@@ -147,4 +182,5 @@ module.exports = {
   doctorList,
   profileImage,
   getAllUsers,
+  updateUserProfile
 };
